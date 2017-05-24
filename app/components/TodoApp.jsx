@@ -1,9 +1,11 @@
 var React = require('react');
 var TodoList = require('TodoList');
+var AddTodo = require('AddTodo');
 
 class TodoApp extends React.Component {
   constructor(props) {
     super(props);
+    this.handleAddTodo = this.handleAddTodo.bind(this)
     this.state = {
       todos: [
         {
@@ -22,11 +24,17 @@ class TodoApp extends React.Component {
       ]
     };
   }
+
+  handleAddTodo(text) {
+    alert(text)
+  }
+
   render() {
     var {todos} = this.state;
     return (
       <div>
         <TodoList todos={todos}/>
+        <AddTodo onAddTodo={this.handleAddTodo}/>
       </div>
     );
   }
