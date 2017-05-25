@@ -13997,18 +13997,22 @@ module.exports = AddTodo;
 var React = __webpack_require__(4);
 
 var Todo = React.createClass({
-  displayName: 'Todo',
+  displayName: "Todo",
 
   render: function render() {
+    var _this = this;
+
     var _props = this.props,
         text = _props.text,
+        completed = _props.completed,
         id = _props.id;
 
     return React.createElement(
-      'div',
-      null,
-      id,
-      '. ',
+      "div",
+      { onClick: function onClick() {
+          _this.props.onToggle(id);
+        } },
+      React.createElement("input", { type: "checkbox", checked: completed }),
       text
     );
   }
@@ -14049,21 +14053,26 @@ var TodoApp = function (_React$Component) {
 
     _this.handleAddTodo = _this.handleAddTodo.bind(_this);
     _this.handleSearch = _this.handleSearch.bind(_this);
+    _this.handleToggle = _this.handleToggle.bind(_this);
     _this.state = {
-      showCompletd: false,
+      showCompleted: false,
       searchText: '',
       todos: [{
         id: uuid(),
-        text: 'Get crazy'
+        text: 'Get crazy',
+        completed: false
       }, {
         id: uuid(),
-        text: 'Get money'
+        text: 'Get money',
+        completed: false
       }, {
         id: uuid(),
-        text: 'Get Vans socks'
+        text: 'Get Vans socks',
+        completed: true
       }, {
         id: uuid(),
-        text: 'Practice React'
+        text: 'Practice React',
+        completed: true
       }]
     };
     return _this;
@@ -14075,7 +14084,8 @@ var TodoApp = function (_React$Component) {
       this.setState({
         todos: [].concat(_toConsumableArray(this.state.todos), [{
           id: uuid(),
-          text: text
+          text: text,
+          completed: false
         }])
       });
     }
@@ -14088,6 +14098,19 @@ var TodoApp = function (_React$Component) {
       });
     }
   }, {
+    key: 'handleToggle',
+    value: function handleToggle(id) {
+      var updatedTodos = this.state.todos.map(function (todo) {
+        if (todo.id === id) {
+          todo.completed = !todo.completed;
+        }
+
+        return todo;
+      });
+
+      this.setState({ todos: updatedTodos });
+    }
+  }, {
     key: 'render',
     value: function render() {
       var todos = this.state.todos;
@@ -14096,7 +14119,7 @@ var TodoApp = function (_React$Component) {
         'div',
         null,
         React.createElement(TodoSearch, { onSearch: this.handleSearch }),
-        React.createElement(TodoList, { todos: todos }),
+        React.createElement(TodoList, { todos: todos, onToggle: this.handleToggle }),
         React.createElement(AddTodo, { onAddTodo: this.handleAddTodo })
       );
     }
@@ -14150,11 +14173,16 @@ var TodoList = React.createClass({
   displayName: 'TodoList',
 
   render: function render() {
-    var todos = this.props.todos;
+    var _this = this;
+
+    var _props = this.props,
+        todos = _props.todos,
+        showCompleted = _props.showCompleted;
+
 
     var renderTodos = function renderTodos() {
       return todos.map(function (todo) {
-        return React.createElement(Todo, _extends({ key: todo.id }, todo));
+        return React.createElement(Todo, _extends({ key: todo.id }, todo, { onToggle: _this.props.onToggle }));
       });
     };
     return React.createElement(
