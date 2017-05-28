@@ -1,17 +1,20 @@
 var React = require('react');
+var {connect} = require('react-redux');
+var actions = require('actions');
 
-class AddTodo extends React.Component {
+export class AddTodo extends React.Component {
   constructor(props) {
     super(props)
     this.onSubmit = this.onSubmit.bind(this)
   }
   onSubmit(e) {
     e.preventDefault();
+    var {dispatch} = this.props;
     var todoText = this.refs.text.value;
 
     if (todoText.length > 1) {
       this.refs.text.value = '';
-      this.props.onAddTodo(todoText);
+      dispatch(actions.addTodo(todoText));
     } else {
       this.refs.text.focus();
     }
@@ -28,4 +31,4 @@ class AddTodo extends React.Component {
   }
 };
 
-module.exports = AddTodo;
+export default connect()(AddTodo);
