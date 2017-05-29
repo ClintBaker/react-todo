@@ -1,6 +1,8 @@
 var webpack = require('webpack');
 var path = require('path');
 
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
 module.exports = {
   entry: ['script-loader!jquery/dist/jquery.min.js', 'script-loader!foundation-sites/dist/foundation.min.js', './app/app.jsx'],
   output: {
@@ -17,6 +19,11 @@ module.exports = {
           includePaths: [
             path.resolve(__dirname, './node_modules/foundation-sites/scss')
           ]
+        },
+        UglifyJsPlugin: {
+          compressor: {
+            warnings: false
+          }
         }
       }
     }),
@@ -48,5 +55,5 @@ module.exports = {
       }
     ]
   },
-  devtool: 'source-map'
+  devtool: process.env.NODE_ENV === 'production' ? undefined : 'source-map'
 };
