@@ -42029,13 +42029,18 @@ var _require2 = __webpack_require__(436),
     hashHistory = _require2.hashHistory;
 
 var TodoApp = __webpack_require__(322);
-
 var actions = __webpack_require__(318);
 var store = __webpack_require__(326).configure();
+var TodoAPI = __webpack_require__(319);
 
 store.subscribe(function () {
-  console.log('New state', store.getState());
+  var state = store.getState();
+  console.log('New state', state);
+  TodoAPI.setTodos(state.todos);
 });
+
+var initialTodos = TodoAPI.getTodos();
+store.dispatch(actions.addTodos(initialTodos));
 
 //Load foundation
 $(document).foundation();
@@ -43075,6 +43080,13 @@ var addTodo = exports.addTodo = function addTodo(text) {
   };
 };
 
+var addTodos = exports.addTodos = function addTodos(todos) {
+  return {
+    type: 'ADD_TODOS',
+    todos: todos
+  };
+};
+
 var toggleTodo = exports.toggleTodo = function toggleTodo(id) {
   return {
     type: 'TOGGLE_TODO',
@@ -43314,8 +43326,6 @@ var _TodoSearch2 = _interopRequireDefault(_TodoSearch);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -43326,61 +43336,18 @@ var React = __webpack_require__(7);
 var uuid = __webpack_require__(255);
 var moment = __webpack_require__(0);
 
-var TodoAPI = __webpack_require__(319);
-
 var TodoApp = function (_React$Component) {
   _inherits(TodoApp, _React$Component);
 
-  function TodoApp(props) {
+  function TodoApp() {
     _classCallCheck(this, TodoApp);
 
-    var _this = _possibleConstructorReturn(this, (TodoApp.__proto__ || Object.getPrototypeOf(TodoApp)).call(this, props));
-
-    _this.handleAddTodo = _this.handleAddTodo.bind(_this);
-    _this.handleSearch = _this.handleSearch.bind(_this);
-    _this.state = {
-      showCompleted: false,
-      searchText: '',
-      todos: TodoAPI.getTodos()
-    };
-    return _this;
+    return _possibleConstructorReturn(this, (TodoApp.__proto__ || Object.getPrototypeOf(TodoApp)).apply(this, arguments));
   }
 
   _createClass(TodoApp, [{
-    key: 'componentDidUpdate',
-    value: function componentDidUpdate() {
-      TodoAPI.setTodos(this.state.todos);
-    }
-  }, {
-    key: 'handleAddTodo',
-    value: function handleAddTodo(text) {
-      this.setState({
-        todos: [].concat(_toConsumableArray(this.state.todos), [{
-          id: uuid(),
-          text: text,
-          completed: false,
-          createdAt: moment().unix(),
-          completedAt: undefined
-        }])
-      });
-    }
-  }, {
-    key: 'handleSearch',
-    value: function handleSearch(showCompleted, searchText) {
-      this.setState({
-        showCompleted: showCompleted,
-        searchText: searchText.toLowerCase()
-      });
-    }
-  }, {
     key: 'render',
     value: function render() {
-      var _state = this.state,
-          todos = _state.todos,
-          showCompleted = _state.showCompleted,
-          searchText = _state.searchText;
-
-      var filteredTodos = TodoAPI.filterTodos(todos, showCompleted, searchText);
       return React.createElement(
         'div',
         null,
@@ -43398,9 +43365,9 @@ var TodoApp = function (_React$Component) {
             React.createElement(
               'div',
               { className: 'container' },
-              React.createElement(_TodoSearch2.default, { onSearch: this.handleSearch }),
+              React.createElement(_TodoSearch2.default, null),
               React.createElement(_TodoList2.default, null),
-              React.createElement(_AddTodo2.default, { onAddTodo: this.handleAddTodo })
+              React.createElement(_AddTodo2.default, null)
             )
           )
         )
@@ -43594,6 +43561,8 @@ var todosReducer = exports.todosReducer = function todosReducer() {
         createdAt: moment().unix(),
         completedAt: undefined
       }]);
+    case 'ADD_TODOS':
+      return [].concat(_toConsumableArray(state), _toConsumableArray(action.todos));
     case 'TOGGLE_TODO':
       return state.map(function (todo) {
         if (todo.id === action.id) {
